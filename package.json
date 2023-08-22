@@ -1,6 +1,6 @@
 {
   "name": "apicurio-echo",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "A simple echo based REST API application for testing.",
   "main": "index.js",
   "scripts": {
