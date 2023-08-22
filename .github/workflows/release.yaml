@@ -1,0 +1,84 @@
+name: Release Workflow
+on:
+  workflow_dispatch:
+    inputs:
+      release-version:
+        description: 'Version being released'
+        required: true
+      snapshot-version:
+        description: 'Next snapshot version'
+        required: true
+      branch:
+        description: 'Branch to release from'
+        required: true
+        default: 'main'
+jobs:
+  release:
+    runs-on: ubuntu-20.04
+    if: github.repository_owner == 'Apicurio'
+    steps:
+      - name: Log Metadata
+        run: |
+          echo "Releasing Apicurio Echo version ${{ github.event.inputs.release-version }} from branch ${{ github.event.inputs.branch }}"
+          echo "Next Snapshot version will be ${{ github.event.inputs.snapshot-version }}"
+
+      - name: Set up Node.js v16
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16
+
+      - name: Checkout Code
+        run: |
+          mkdir echo
+          cd echo
+          git init
+          git config --global user.name "apicurio-ci"
+          git config --global user.email "apicurio.ci@gmail.com"
+          git remote add origin "https://apicurio-ci:${{ secrets.ACCESS_TOKEN }}@github.com/Apicurio/apicurio-echo.git"
+          git fetch
+          git checkout ${{ github.event.inputs.branch }}
+          git branch --set-upstream-to=origin/${{ github.event.inputs.branch }}
+          git pull
+
+      - name: Update Release Version ${{ github.event.inputs.release-version}}
+        run: |
+          cd echo
+          sed -i  "5s/\"version\"\:\s\".*\"/\"version\": \"${{ github.event.inputs.release-version }}\"/g" package.json
+
+      - name: Import GPG Key
+        uses: crazy-max/ghaction-import-gpg@f6f458f535f4ccdf100400ee0755c0e857226a66
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+          PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+
+      - name: Login to Quay.io Registry
+        run: docker login -u "${{ secrets.QUAY_USERNAME }}" -p "${{ secrets.QUAY_PASSWORD }}" quay.io
+
+      - name: Docker build
+        run: |
+          docker build -t quay.io/apicurio/apicurio-echo:latest-release .
+          docker build -t quay.io/apicurio/apicurio-echo:${{ github.event.inputs.release-version }} .
+
+      - name: Docker push
+        run: |
+          docker push quay.io/apicurio/apicurio-echo:latest-release
+          docker push quay.io/apicurio/apicurio-echo:${{ github.event.inputs.release-version }}
+
+      - name: Commit Release Version Change
+        run: |
+          cd echo
+          git add .
+          git commit -m "Automated update to Release Version:: ${{ github.event.inputs.release-version}}"
+          git push
+
+      - name: Update Snapshot Version ${{ github.event.inputs.snapshot-version}}
+        run: |
+          cd echo
+          sed -i  "5s/\"version\"\:\s\".*\"/\"version\": \"${{ github.event.inputs.snapshot-version }}\"/g" package.json
+
+      - name: Commit Snapshot Version ${{ github.event.inputs.snapshot-version}}
+        run: |
+          cd echo
+          git add .
+          git commit -m "Automated update to next Snapshot Version: ${{ github.event.inputs.snapshot-version}}"
+          git push
