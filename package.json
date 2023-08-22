@@ -1,0 +1,27 @@
+{
+  "name": "apicurio-echo",
+  "version": "1.0.0",
+  "description": "A simple echo based REST API application for testing.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Apicurio/apicurio-echo.git"
+  },
+  "keywords": [
+    "apicurio",
+    "testing",
+    "echo"
+  ],
+  "author": "Eric Wittmann",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/Apicurio/apicurio-echo/issues"
+  },
+  "homepage": "https://github.com/Apicurio/apicurio-echo#readme",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
