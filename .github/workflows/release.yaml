@@ -56,11 +56,13 @@ jobs:
 
       - name: Docker build
         run: |
+          cd echo
           docker build -t quay.io/apicurio/apicurio-echo:latest-release .
           docker build -t quay.io/apicurio/apicurio-echo:${{ github.event.inputs.release-version }} .
 
       - name: Docker push
         run: |
+          cd echo
           docker push quay.io/apicurio/apicurio-echo:latest-release
           docker push quay.io/apicurio/apicurio-echo:${{ github.event.inputs.release-version }}
 
