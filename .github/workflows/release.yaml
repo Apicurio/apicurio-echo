@@ -43,7 +43,7 @@ jobs:
       - name: Update Release Version ${{ github.event.inputs.release-version}}
         run: |
           cd echo
-          sed -i "s/\"version\"[ ]*[:][ ]*\"[0-9]*\.[0-9]*\.[0-9]*\"/\"version\": \"${{ github.event.inputs.release-version }}\"/g" package.json
+          sed -i "s/\"version\"[ ]*[:][ ]*\"[0-9]\+\.[0-9]\+\.[^\"]\+\"/\"version\": \"${{ github.event.inputs.release-version }}\"/g" package.json
 
       - name: Import GPG Key
         uses: crazy-max/ghaction-import-gpg@f6f458f535f4ccdf100400ee0755c0e857226a66
@@ -76,7 +76,7 @@ jobs:
       - name: Update Snapshot Version ${{ github.event.inputs.snapshot-version}}
         run: |
           cd echo
-          sed -i "s/\"version\"[ ]*[:][ ]*\"[0-9]*\.[0-9]*\.[0-9]*\"/\"version\": \"${{ github.event.inputs.snapshot-version }}\"/g" package.json
+          sed -i "s/\"version\"[ ]*[:][ ]*\"[0-9]\+\.[0-9]\+\.[^\"]\+\"/\"version\": \"${{ github.event.inputs.snapshot-version }}\"/g" package.json
 
       - name: Commit Snapshot Version ${{ github.event.inputs.snapshot-version}}
         run: |
